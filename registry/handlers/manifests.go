@@ -491,6 +491,16 @@ func (imh *manifestHandler) DeleteManifest(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if imh.Tag != "" {
+		tagService := imh.Repository.Tags(imh)
+		if err := tagService.Untag(imh, imh.Tag); err != nil {
+			imh.Errors = append(imh.Errors, err)
+			return
+		}
+		w.WriteHeader(http.StatusAccepted)
+		return
+	}
+
 	err = manifests.Delete(imh, imh.Digest)
 	if err != nil {
 		switch err {
